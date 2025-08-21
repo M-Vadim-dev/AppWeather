@@ -4,11 +4,11 @@
 
 ## Скриншоты
 
-![Главный экран](screenshots/main_screen.jpg)
+![Главный экран](main_screen.jpg)
 
 ## Демо
 
-![Демо приложения](demo/weather_demo.webp)
+![Демо приложения](weather_demo.webp)
 
 ## Возможности
 
