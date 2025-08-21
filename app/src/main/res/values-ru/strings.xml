@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AppWeather</string>
+    <string name="search_button_hint">Введите город</string>
+    <string name="search_button_description">Введите название города</string>
+    <string name="search_button">Найти</string>
+</resources>
