@@ -8,9 +8,12 @@ import com.example.appweather.data.local.room.dbo.WeatherEntity
 
 @Dao
 interface WeatherDao {
-    @Query("SELECT * FROM weather WHERE city = :city")
-    suspend fun getWeather(city: String): WeatherEntity?
+    @Query("SELECT * FROM weather WHERE cityId = :cityId")
+    suspend fun getWeather(cityId: Int): WeatherEntity?
+
+    @Query("SELECT * FROM weather WHERE cityId = :cityId ORDER BY lastUpdatedEpoch DESC LIMIT 1")
+    suspend fun getLatestWeather(cityId: Int): WeatherEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWeather(entity: WeatherEntity)
+    suspend fun insertWeather(weather: WeatherEntity)
 }

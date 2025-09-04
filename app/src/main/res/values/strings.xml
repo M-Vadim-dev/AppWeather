@@ -1,6 +1,37 @@
 <resources>
     <string name="app_name">AppWeather</string>
+
+    <string name="settings">Settings</string>
+    <string name="error_no_network">No network</string>
+
+    <string name="button_clear">Clear</string>
     <string name="search_button">Search</string>
     <string name="search_button_hint">Enter city</string>
     <string name="search_button_description">Enter city name</string>
+    <string name="search_enter_location">Enter location</string>
+
+    <string name="forecast_24h">24-hour Forecast</string>
+    <string name="set_as_default">Set as default</string>
+    <string name="delete_city">Delete city</string>
+    <string name="default_city">Default city</string>
+
+    <string name="temperature">Temperature</string>
+    <string name="wind">Wind</string>
+    <string name="wind_speed">Wind speed</string>
+    <string name="wind_direction">Wind direction</string>
+    <string name="humidity">Humidity</string>
+    <string name="sunrise">Sunrise</string>
+    <string name="sunset">Sunset</string>
+    <string name="moonrise">Moonrise</string>
+    <string name="moonset">Moonset</string>
+    <string name="moon_phase">Moon phase</string>
+    <string name="uv_index">UV Index</string>
+    <string name="cloud">Cloud</string>
+    <string name="pressure">Pressure</string>
+
+    <string name="text_back">Back</string>
+    <string name="text_pick_location">Pick location</string>
+    <string name="text_current_location">Current location</string>
+    <string name="text_added_locations">Added locations</string>
+    <string name="text_find_area_or_city">Find the area or city that you want to know the detailed weather info at this time</string>
 </resources>

@@ -39,6 +39,8 @@ data class CurrentDto(
     val windKph: Double,
     @SerialName("wind_dir")
     val windDir: String,
+    @SerialName("pressure_mb")
+    val pressure: Double,
     val cloud: Int,
     val humidity: Int,
     val uv: Double,

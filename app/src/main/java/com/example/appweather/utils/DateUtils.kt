@@ -1,50 +1,49 @@
 package com.example.appweather.utils
 
+import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object DateUtils {
 
-    private val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
+    private val dateTimeFormatter by lazy { DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm") }
+    private val dateOnlyFormatter by lazy { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
+    private val timeFormatter by lazy { DateTimeFormatter.ofPattern("HH:mm") }
+    private val dateFormatter by lazy { DateTimeFormatter.ofPattern("d MMMM", Locale.getDefault()) }
+    private val weekDayFormatter by lazy {
+        DateTimeFormatter.ofPattern(
+            "EEEE",
+            Locale.getDefault()
+        )
+    }
 
-    private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-
-    /**
-     * Парсим строку из API в LocalDateTime
-     */
-    fun parseApiDateTime(raw: String): LocalDateTime = LocalDateTime.parse(raw, inputFormatter)
-
-    /**
-     * Парсим время из API формата "2024-01-20 12:00" в LocalTime
-     */
-    fun parseHourTimeFromApi(timeString: String): LocalTime {
-        return try {
-            val dateTime = DateUtils.parseApiDateTime(timeString)
-            dateTime.toLocalTime()
-        } catch (e: Exception) {
-            try {
-                LocalTime.parse(timeString)
-            } catch (e: Exception) {
-                LocalTime.MIN
-            }
+    fun parseApi(raw: String): LocalDateTime? = try {
+        when (raw.length) {
+            10 -> LocalDate.parse(raw, dateOnlyFormatter).atStartOfDay()
+            16 -> LocalDateTime.parse(raw, dateTimeFormatter)
+            else -> null
         }
+    } catch (_: Exception) {
+        null
     }
 
-    fun formatDate(dateTime: LocalDateTime): String {
-        val formatter = DateTimeFormatter.ofPattern("d MMMM", Locale.getDefault())
-        return dateTime.format(formatter) //
-    }
+    fun formatDate(dateTime: LocalDateTime): String = dateTime.format(dateFormatter)
 
-    fun formatWeekDay(dateTime: LocalDateTime): String {
-        val formatter = DateTimeFormatter.ofPattern("EEEE", Locale.getDefault())
-        val weekDay = dateTime.format(formatter)
-        return weekDay.replaceFirstChar { it.uppercaseChar() }
-    }
+    fun formatWeekDay(dateTime: LocalDateTime): String =
+        dateTime.format(weekDayFormatter).replaceFirstChar { it.uppercaseChar() }
 
-    /**
-     * Форматируем только время "HH:mm"
-     */
     fun formatTime(dateTime: LocalDateTime): String = dateTime.format(timeFormatter)
+
+    fun formatFromApi(raw: String, pattern: String, fallback: String = raw): String =
+        parseApi(raw)?.format(DateTimeFormatter.ofPattern(pattern)) ?: fallback
+
+    fun formatTimeHHmm(raw: String): String = formatFromApi(raw, "HH:mm", raw.takeLast(5))
+
+    fun formatDateFromApi(raw: String): String = formatFromApi(raw, "d MMMM", raw)
+
+    fun formatDateShortFromApi(raw: String): String = formatFromApi(raw, "d MMM", raw)
+
+    fun formatWeekDayFromApi(raw: String): String =
+        formatFromApi(raw, "EEEE", raw).replaceFirstChar { it.uppercaseChar() }
 }

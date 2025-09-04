@@ -4,12 +4,11 @@ import com.example.appweather.data.local.room.dbo.WeatherEntity
 import com.example.appweather.domain.model.WeatherInfo
 import javax.inject.Inject
 
-
-class WeatherDbConverter @Inject constructor() {   //todo
+class WeatherDbConverter @Inject constructor() {
 
     fun toEntity(domain: WeatherInfo): WeatherEntity {
         return WeatherEntity(
-            city = domain.city,
+            cityId = domain.cityId,
             country = domain.country,
             localtime = domain.localtime,
             temperatureC = domain.temperatureC,
@@ -21,6 +20,7 @@ class WeatherDbConverter @Inject constructor() {   //todo
             windDir = domain.windDir,
             humidity = domain.humidity,
             uvIndex = domain.uvIndex,
+            pressure = domain.pressure,
             cloud = domain.cloud,
             sunrise = domain.sunrise,
             sunset = domain.sunset,
@@ -32,10 +32,13 @@ class WeatherDbConverter @Inject constructor() {   //todo
         )
     }
 
-    fun toDomain(entity: WeatherEntity): WeatherInfo {
+    fun toDomain(entity: WeatherEntity, cityName: String, lat: Double, lon: Double): WeatherInfo {
         return WeatherInfo(
-            city = entity.city,
+            cityId = entity.cityId,
+            cityName = cityName,
             country = entity.country,
+            latitude = lat,
+            longitude = lon,
             localtime = entity.localtime,
             temperatureC = entity.temperatureC,
             temperatureF = entity.temperatureF,
@@ -46,6 +49,7 @@ class WeatherDbConverter @Inject constructor() {   //todo
             windDir = entity.windDir,
             humidity = entity.humidity,
             uvIndex = entity.uvIndex,
+            pressure = entity.pressure,
             cloud = entity.cloud,
             sunrise = entity.sunrise,
             sunset = entity.sunset,

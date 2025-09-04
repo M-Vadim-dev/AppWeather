@@ -12,12 +12,15 @@ import javax.inject.Inject
 
 class WeatherMapper @Inject constructor() {
 
-    fun toDomain(dto: ForecastResponse): WeatherInfo {
+    fun toDomain(dto: ForecastResponse, cityId: Int): WeatherInfo {
         val todayForecast = dto.forecast.forecastDay.firstOrNull()
 
         return WeatherInfo(
-            city = dto.location.name,
+            cityId = cityId,
+            cityName = dto.location.name,
             country = dto.location.country,
+            latitude = dto.location.lat ?: 0.0,
+            longitude = dto.location.lon ?: 0.0,
             localtime = dto.location.localtime,
             temperatureC = dto.current.tempC,
             temperatureF = dto.current.tempF,
@@ -29,6 +32,7 @@ class WeatherMapper @Inject constructor() {
             windMph = dto.current.windMph,
             windDir = dto.current.windDir,
             uvIndex = dto.current.uv,
+            pressure = dto.current.pressure,
             cloud = dto.current.cloud,
             sunrise = todayForecast?.astro?.sunrise ?: "N/A",
             sunset = todayForecast?.astro?.sunset ?: "N/A",

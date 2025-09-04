@@ -1,10 +1,11 @@
 package com.example.appweather.domain.useCase
 
-import com.example.appweather.domain.repository.WeatherRepository
+import com.example.appweather.domain.model.City
+import com.example.appweather.domain.repository.CityRepository
 import javax.inject.Inject
 
 class AddCityUseCase @Inject constructor(
-    private val repository: WeatherRepository,
+    private val repository: CityRepository,
 ) {
-    suspend operator fun invoke(city: String) = repository.addCity(city)
+    suspend operator fun invoke(city: City) = repository.addCity(city)
 }

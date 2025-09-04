@@ -2,7 +2,10 @@ package com.example.appweather.domain.model
 
 
 data class WeatherInfo(
-    val city: String,
+    val cityId: Int,
+    val cityName: String,
+    val latitude: Double,
+    val longitude: Double,
     val country: String,
     val localtime: String,
     val temperatureC: Double,
@@ -15,6 +18,7 @@ data class WeatherInfo(
     val windMph: Double,
     val windDir: String,
     val uvIndex: Double,
+    val pressure: Double,
     val cloud: Int,
     val sunrise: String,
     val sunset: String,

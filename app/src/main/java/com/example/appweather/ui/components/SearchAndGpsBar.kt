@@ -39,6 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.appweather.R
@@ -52,6 +54,7 @@ internal fun SearchAndGpsBar(
     onSearchQueryChange: (String) -> Unit,
     onSearch: () -> Unit,
     onUseGps: () -> Unit,
+    onUseNotifications: () -> Unit,
     onToggleSearchVisibility: () -> Unit,
 ) {
     val transition = updateTransition(targetState = isSearchVisible)
@@ -106,7 +109,7 @@ internal fun SearchAndGpsBar(
         }
 
         IconButton(
-            onClick = onUseGps
+            onClick = onUseNotifications
         ) {
             Icon(
                 imageVector = Icons.Filled.Notifications,
@@ -141,7 +144,9 @@ private fun CompactSearchField(
             onValueChange = { if (it.length <= 19) onQueryChange(it) },
             singleLine = true,
             keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Search
+                imeAction = ImeAction.Search,
+                keyboardType = KeyboardType.Text,
+                capitalization = KeyboardCapitalization.Words
             ),
             keyboardActions = KeyboardActions(
                 onSearch = { onSearch() }
@@ -193,6 +198,7 @@ private fun PreviewSearchAndGpsBar() {
                 onSearchQueryChange = { searchQuery.value = it },
                 onSearch = {},
                 onUseGps = {},
+                onUseNotifications = {},
                 onToggleSearchVisibility = { isSearchVisible.value = !isSearchVisible.value }
             )
         }
