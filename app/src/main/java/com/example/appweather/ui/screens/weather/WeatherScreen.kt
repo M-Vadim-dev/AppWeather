@@ -2,7 +2,6 @@ package com.example.appweather.ui.screens.weather
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -76,6 +75,7 @@ import com.example.appweather.domain.model.City
 import com.example.appweather.ui.components.chart.ChartPoint
 import com.example.appweather.ui.components.chart.LineChart
 import com.example.appweather.ui.theme.AppWeatherTheme
+import com.example.appweather.ui.theme.Yellow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
@@ -115,12 +115,19 @@ internal fun WeatherScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = selectedCity?.name.orEmpty(),
-                        modifier = Modifier.alpha(titleAlpha),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .wrapContentHeight(Alignment.CenterVertically)
+                    ) {
+                        Text(
+                            text = selectedCity?.name.orEmpty(),
+                            modifier = Modifier.alpha(titleAlpha),
+                            maxLines = 1,
+                            textAlign = TextAlign.Center,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                 },
                 navigationIcon = {
                     IconButton(onClick = onOpenLocation) {
@@ -149,21 +156,22 @@ internal fun WeatherScreen(
                     titleContentColor = MaterialTheme.colorScheme.onPrimary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                ),
+                modifier = Modifier.height(80.dp)
             )
         },
         containerColor = Color.Transparent
-    ) { padding ->
+    ) { paddingValues ->
 
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .padding(padding),
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
             HorizontalPager(
                 state = pagerState,
-                modifier = modifier.fillMaxSize(),
+                modifier = modifier,
                 pageSize = PageSize.Fill
             ) { page ->
                 val city = cities[page]
@@ -213,7 +221,6 @@ internal fun WeatherScreen(
         }
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -269,34 +276,24 @@ private fun WeatherBottomSheetScaffold(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        Box(
+                        LineChart(
+                            data = uiState.hourlyForecast.map { forecast ->
+                                ChartPoint(
+                                    label = forecast.time,
+                                    value = forecast.temperature
+                                )
+                            },
+                            lineColor = Yellow,
+                            gradientColor = Yellow,
+                            showAxis = false,
+                            showPoints = false,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                        ) {
-                            val baseItemWidth = 40.dp
-                            val minChartWidth = 640.dp
-                            val calculatedWidth = baseItemWidth * uiState.hourlyForecast.size
-
-                            LineChart(
-                                data = uiState.hourlyForecast.map { forecast ->
-                                    ChartPoint(
-                                        label = forecast.time,
-                                        value = forecast.temperature
-                                    )
-                                },
-                                lineColor = Color(0xFFFFF100),
-                                gradientColor = Color(0xFFFFF100),
-                                showAxis = false,
-                                showPoints = false,
-                                modifier = Modifier
-                                    .width(maxOf(calculatedWidth, minChartWidth))
-                                    .background(
-                                        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.4f),
-                                        shape = RoundedCornerShape(16.dp)
-                                    )
-                            )
-                        }
+                                .background(
+                                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                    shape = RoundedCornerShape(16.dp)
+                                )
+                        )
                     }
                 }
 
@@ -325,8 +322,10 @@ private fun WeatherBottomSheetScaffold(
                         title = stringResource(id = R.string.pressure),
                         value = uiState.pressure.toString(),
                         iconProgress = painterResource(id = R.drawable.ic_arrow_down),
-                        labelProgress = "mmHg",
+                        labelProgress = "mb",
+                        progress = (uiState.pressure.toFloat() - 970f) / 80f,
                         showProgress = true,
+                        showPressureGradientColor = true,
                     )
                 }
 
@@ -344,11 +343,13 @@ private fun WeatherBottomSheetScaffold(
                             value = value,
                             iconProgress = painterResource(id = icon),
                             progress = when (title) {
-                                R.string.uv_index -> uiState.uvIndex.toFloat() / 10
+                                R.string.uv_index -> uiState.uvIndex.toFloat() / 11f
                                 R.string.humidity -> uiState.humidity.toFloat() / 100
                                 R.string.cloud -> uiState.cloud.toFloat() / 100
                                 else -> 0f
-                            }
+                            },
+                            showProgress = title != R.string.wind,
+                            showUvGradientColor = title == R.string.uv_index,
                         )
                     }
                 }
@@ -517,7 +518,7 @@ private fun WeatherScreenContent(
         Spacer(modifier = Modifier.height(30.dp))
 
         LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(forecastDays) { item ->
                 ForecastCard(item)
@@ -533,7 +534,8 @@ private fun PreviewWeatherBottomSheetScaffold() {
     val mockHourlyForecast = listOf(
         HourlyForecastUiItem("12:00", 20, "", "Ясно", 50, 10.0, "NW"),
         HourlyForecastUiItem("13:00", 21, "", "Ясно", 52, 12.0, "NW"),
-        HourlyForecastUiItem("14:00", 22, "", "Облачно", 55, 15.0, "N")
+        HourlyForecastUiItem("14:00", 22, "", "Облачно", 55, 15.0, "N"),
+        HourlyForecastUiItem("15:00", 22, "", "Облачно", 65, 14.0, "N")
     )
 
     val mockForecastDays = listOf(

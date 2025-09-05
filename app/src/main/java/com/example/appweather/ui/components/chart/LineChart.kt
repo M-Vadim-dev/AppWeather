@@ -29,7 +29,8 @@ import com.example.appweather.ui.theme.AppWeatherTheme
 internal fun LineChart(
     modifier: Modifier = Modifier,
     data: List<ChartPoint>,
-    showEvery: Int = 1,
+    showAxisEvery: Int = 4,
+    showValueEvery: Int = 4,
     showAxis: Boolean = true,
     showAxisLabels: Boolean = true,
     showValues: Boolean = true,
@@ -41,6 +42,14 @@ internal fun LineChart(
     axisColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
     if (data.isEmpty()) return
+
+    val filteredIndices = mutableSetOf<Int>()
+    data.indices.forEach { index ->
+        if (index % showAxisEvery == 0 || index % showValueEvery == 0 || index == data.lastIndex) {
+            filteredIndices.add(index)
+        }
+    }
+    val filteredData = filteredIndices.sorted().map { data[it] }
 
     val values = data.map { it.value }
     val maxValue = values.maxOrNull() ?: 0
@@ -58,8 +67,8 @@ internal fun LineChart(
             val padding = 16.dp.toPx()
             val chartHeight = height - 2 * padding
 
-            val points = data.mapIndexed { index, point ->
-                val x = padding + (width - 2 * padding) * (index.toFloat() / (data.size - 1))
+            val points = filteredData.mapIndexed { idx, point ->
+                val x = padding + (width - 2 * padding) * (idx.toFloat() / (filteredData.size - 1))
                 val y = if (maxValue != minValue) {
                     padding + chartHeight * (1 - (point.value - minValue).toFloat() / (maxValue - minValue))
                 } else {
@@ -80,19 +89,12 @@ internal fun LineChart(
             if (points.size >= 2) {
                 val path = Path().apply {
                     moveTo(points.first().x, points.first().y)
-
                     for (i in 1 until points.size) {
                         val prev = points[i - 1]
                         val cur = points[i]
 
-                        val control1 = Offset(
-                            prev.x + (cur.x - prev.x) * 0.3f,
-                            prev.y
-                        )
-                        val control2 = Offset(
-                            cur.x - (cur.x - prev.x) * 0.3f,
-                            cur.y
-                        )
+                        val control1 = Offset(prev.x + (cur.x - prev.x) / 3, prev.y)
+                        val control2 = Offset(cur.x - (cur.x - prev.x) / 3, cur.y)
 
                         cubicTo(control1.x, control1.y, control2.x, control2.y, cur.x, cur.y)
                     }
@@ -122,7 +124,9 @@ internal fun LineChart(
                 )
             }
 
-            points.forEachIndexed { index, point ->
+            points.forEachIndexed { idx, point ->
+                val dataIndex = filteredIndices.sorted()[idx]
+
                 if (showPoints) {
                     drawCircle(
                         color = pointsColor,
@@ -134,7 +138,7 @@ internal fun LineChart(
                 if (showValues) {
                     drawIntoCanvas { canvas ->
                         canvas.nativeCanvas.drawText(
-                            "${data[index].value}",
+                            "${data[dataIndex].value}°",
                             point.x,
                             point.y - 10.dp.toPx(),
                             Paint().apply {
@@ -147,12 +151,12 @@ internal fun LineChart(
                     }
                 }
 
-                if (showAxisLabels && index % showEvery == 0) {
+                if (showAxisLabels) {
                     drawIntoCanvas { canvas ->
                         canvas.nativeCanvas.drawText(
-                            data[index].label,
+                            data[dataIndex].label,
                             point.x,
-                            height - 5.dp.toPx(),
+                            height - 2.dp.toPx(),
                             Paint().apply {
                                 color = axisColor.toArgb()
                                 textSize = 8.sp.toPx()
@@ -186,6 +190,8 @@ private fun LineChartPreview() {
                 ChartPoint("10:00", 19)
             ),
             showPoints = false,
+            showAxisEvery = 1,
+            showValueEvery = 1,
         )
     }
 }

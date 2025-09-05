@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -112,7 +114,8 @@ private fun LocationScreenContent(
             LocationTopAppBar(
                 onBackClick = onBackClick,
                 onUseGps = onUseGps,
-                gpsEnabled = gpsEnabled
+                gpsEnabled = gpsEnabled,
+                modifier = Modifier.height(80.dp)
             )
         },
         containerColor = Color.Transparent
@@ -191,7 +194,10 @@ private fun LocationScreenContent(
                     }
                 }
 
-                items(state.cities.filter { !it.isDefault }) { cityWeather ->
+                items(
+                    items = state.cities.filter { !it.isDefault },
+                    key = { it.cityName }
+                ) { cityWeather ->
                     CustomSwipeBoxCityItem(
                         cityName = cityWeather.cityName,
                         temperature = cityWeather.temperature,
@@ -222,13 +228,19 @@ private fun LocationTopAppBar(
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = stringResource(id = R.string.text_pick_location),
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentHeight(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.text_pick_location),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
         },
         navigationIcon = {
             IconButton(onClick = onBackClick) {

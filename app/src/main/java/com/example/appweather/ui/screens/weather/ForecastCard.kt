@@ -1,7 +1,9 @@
 package com.example.appweather.ui.screens.weather
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -12,13 +14,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.appweather.R
+import com.example.appweather.ui.components.CustomHorizontalDivider
 import com.example.appweather.ui.theme.AppWeatherTheme
 
 @Composable
@@ -28,22 +31,31 @@ internal fun ForecastCard(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = modifier
-            .width(90.dp)
+            .width(115.dp)
+            .height(225.dp)
             .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
                 shape = RoundedCornerShape(16.dp)
             )
             .padding(8.dp)
     ) {
         Text(
             text = item.date,
-            fontSize = 14.sp,
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(4.dp)
         )
+
+        CustomHorizontalDivider()
+
         AsyncImage(
-            modifier = Modifier.size(48.dp),
+            modifier = Modifier
+                .size(54.dp)
+                .padding(top = 4.dp),
             model = item.iconUrl,
             contentDescription = item.condition,
             placeholder = painterResource(id = R.drawable.ic_no_image),
@@ -53,13 +65,13 @@ internal fun ForecastCard(
             text = "${item.minTemp}° - ${item.maxTemp}°",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.secondary,
-            fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 4.dp)
         )
         Text(
             text = "${item.avgTemp}°",
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.displayMedium,
+            fontSize = 24.sp,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(vertical = 4.dp)
@@ -68,9 +80,11 @@ internal fun ForecastCard(
             text = item.condition,
             fontSize = 12.sp,
             color = MaterialTheme.colorScheme.tertiary,
-            lineHeight = 14.sp,
+            style = MaterialTheme.typography.titleMedium,
+            lineHeight = 12.sp,
+            maxLines = 3,
+            overflow = TextOverflow.Ellipsis,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(bottom = 8.dp)
         )
     }
 }

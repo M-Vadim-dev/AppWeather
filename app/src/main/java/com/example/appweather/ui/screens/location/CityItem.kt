@@ -71,7 +71,7 @@ internal fun CustomSwipeBoxCityItem(
     val iconPaddingPx = with(density) { 14.dp.toPx() }
     val maxOffsetX = iconWidthPx + iconPaddingPx
 
-    val offsetX = remember(cityName) { Animatable(0f) }
+    val offsetX = remember(key1 = cityName) { Animatable(0f) }
 
     val fraction = (-offsetX.value / maxOffsetX).coerceIn(0f, 1f)
     val alpha by animateFloatAsState(fraction)
@@ -152,8 +152,8 @@ internal fun CityItem(
         modifier = modifier
             .fillMaxWidth()
             .background(
-                color = if (isDay) MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
-                else MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                color = if (isDay) MaterialTheme.colorScheme.surface.copy(alpha = 0.7f) //todo
+                else MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(16.dp)
             )
             .clickable(onClick = onSelect),

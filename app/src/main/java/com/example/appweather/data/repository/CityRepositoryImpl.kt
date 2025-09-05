@@ -5,6 +5,8 @@ import com.example.appweather.data.mapper.toDomain
 import com.example.appweather.data.mapper.toEntity
 import com.example.appweather.domain.model.City
 import com.example.appweather.domain.repository.CityRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CityRepositoryImpl @Inject constructor(
@@ -29,6 +31,9 @@ class CityRepositoryImpl @Inject constructor(
 
     override suspend fun getDefaultCity(): City? =
         cityDao.getDefaultCity()?.toDomain()
+
+    override fun getDefaultCityFlow(): Flow<City?> =
+        cityDao.getDefaultCityFlow().map { it?.toDomain() }
 
     override suspend fun saveDefaultCity(cityName: String) =
         cityDao.setDefaultCity(cityName)

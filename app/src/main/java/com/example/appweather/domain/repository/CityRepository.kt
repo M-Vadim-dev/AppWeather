@@ -1,6 +1,7 @@
 package com.example.appweather.domain.repository
 
 import com.example.appweather.domain.model.City
+import kotlinx.coroutines.flow.Flow
 
 
 interface CityRepository {
@@ -10,5 +11,6 @@ interface CityRepository {
     suspend fun removeCity(cityName: String)
     suspend fun getAllCities(): List<City>
     suspend fun getDefaultCity(): City?
+    fun getDefaultCityFlow(): Flow<City?>
     suspend fun saveDefaultCity(cityName: String)
 }

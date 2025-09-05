@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,9 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.appweather.R
 import com.example.appweather.ui.theme.AppWeatherTheme
@@ -34,16 +37,17 @@ internal fun HourlyForecast(hourlyData: List<HourlyForecastUiItem>) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.4f),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(16.dp)
             )
-            .padding(16.dp)
+            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 24.dp)
     ) {
         Text(
             text = stringResource(id = R.string.forecast_24h),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.padding(bottom = 8.dp)
+            fontSize = 16.sp,
+            modifier = Modifier.padding(start = 8.dp, bottom = 8.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -64,12 +68,15 @@ internal fun HourlyForecast(hourlyData: List<HourlyForecastUiItem>) {
 private fun HourlyForecastItem(hour: HourlyForecastUiItem) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.width(70.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = Modifier.width(75.dp)
     ) {
         Text(
             text = hour.time,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.tertiary,
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center
         )
 
         AsyncImage(
@@ -83,23 +90,45 @@ private fun HourlyForecastItem(hour: HourlyForecastUiItem) {
 
         Text(
             text = "${hour.temperature}°",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.onPrimary,
-            fontWeight = FontWeight.Bold
+            fontSize = 16.sp,
+            textAlign = TextAlign.Center
         )
 
-        Text(
-            text = "${hour.humidity}%",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.secondary,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_humidity),
+                contentDescription = stringResource(id = R.string.humidity),
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(20.dp),
+            )
+            Text(
+                text = "${hour.humidity}%",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
+            )
+        }
 
-        Text(
-            text = "${hour.windSpeed.toInt()} км/ч",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.secondary,
-        )
-
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_wind),
+                contentDescription = stringResource(id = R.string.wind_speed),
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier
+                    .size(16.dp)
+                    .padding(end = 4.dp),
+            )
+            Text(
+                text = "${hour.windSpeed.toInt()} км/ч",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = 12.sp,
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 

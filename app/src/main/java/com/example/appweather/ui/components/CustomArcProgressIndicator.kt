@@ -16,11 +16,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.appweather.R
+import com.example.appweather.ui.theme.AppWeatherTheme
 
 @Composable
 internal fun CustomArcProgressIndicator(
@@ -28,14 +31,22 @@ internal fun CustomArcProgressIndicator(
     progress: Float,
     text: String,
     icon: Painter,
-    iconColor: Color = MaterialTheme.colorScheme.secondary,
+    iconColor: Color = MaterialTheme.colorScheme.tertiary,
     color: Color = MaterialTheme.colorScheme.primary,
     trackColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
     strokeWidth: Dp = 5.dp,
     totalSweepAngle: Float = 265f,
     startAngle: Float = 90f - totalSweepAngle - 90f / 2f,
     showArcAndText: Boolean = true,
+    isUvIndex: Boolean = false,
+    isPressure: Boolean = false,
 ) {
+    val arcColor = when {
+        isUvIndex -> getUvGradientColor(progress)
+        isPressure -> getPressureGradientColor(progress)
+        else -> color
+    }
+
     Box(
         modifier = modifier.size(80.dp),
         contentAlignment = Alignment.Center
@@ -60,7 +71,7 @@ internal fun CustomArcProgressIndicator(
                 )
 
                 drawArc(
-                    color = color,
+                    color = arcColor,
                     startAngle = startAngle,
                     sweepAngle = sweepAngle,
                     useCenter = false,
@@ -91,5 +102,38 @@ internal fun CustomArcProgressIndicator(
             )
         }
 
+    }
+}
+
+@Composable
+private fun getUvGradientColor(progress: Float): Color {
+    val uvValue = progress * 11f
+
+    return when {
+        uvValue < 0.01f -> Color(0xFF4CAF50)
+        uvValue < 2.5f -> Color(0xFF8BC34A)
+        uvValue < 5.5f -> Color(0xFFFFEB3B)
+        uvValue < 7.5f -> Color(0xFFFF9800)
+        uvValue < 10.5f -> Color(0xFFF44336)
+        else -> Color(0xFF9C27B0)
+    }
+}
+
+@Composable
+private fun getPressureGradientColor(progress: Float): Color = when {
+    progress < 0.4 -> Color(0xFF2196F3)
+    progress < 0.6 -> Color(0xFF4CAF50)
+    else -> Color(0xFFF44336)
+}
+
+@Preview
+@Composable
+private fun CustomArcProgressIndicatorPreview() {
+    AppWeatherTheme {
+        CustomArcProgressIndicator(
+            icon = painterResource(id = R.drawable.ic_arrow_down),
+            progress = 0.75f,
+            text = "mbar"
+        )
     }
 }

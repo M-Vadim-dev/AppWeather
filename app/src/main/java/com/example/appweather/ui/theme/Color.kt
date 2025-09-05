@@ -6,6 +6,8 @@ val White = Color(0xFFFFFFFF)
 val Yellow = Color(0xFFFFF100)
 val SlateGray = Color(0xFF828288)
 
+val DarkOceanBlue = Color(0xFF0E1936)
+val OceanBlue = Color(0xFF253A75)
 val DarkBlue = Color(0xFF15204E)
 val MidnightBlue = Color(0xFF36247B)
 val DarkSlateBlue = Color(0xFF4B30A9)

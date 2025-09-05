@@ -23,6 +23,7 @@ internal fun WeatherInfo.toUiState(): WeatherUiState = WeatherUiState(
     windSpeed = windKph,
     windDir = windDir,
     uvIndex = uvIndex,
+    pressure = pressure,
     cloud = cloud,
     forecastDays = forecast.map { it.toUi() }
 )

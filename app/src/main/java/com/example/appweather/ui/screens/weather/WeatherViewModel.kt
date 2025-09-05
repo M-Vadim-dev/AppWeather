@@ -17,6 +17,7 @@ import com.example.appweather.utils.NetworkMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,29 +45,50 @@ class WeatherViewModel @Inject constructor(
         viewModelScope.launch {
             ensureDefaultCityUseCase()
 
-            val defaultCity = getDefaultCityUseCase()
-            val cityList = getAllCitiesUseCase()
-            _cities.value = cityList
+            getDefaultCityUseCase().collect { defaultCity ->
+                val cityList = getAllCitiesUseCase()
+                val orderedCities = if (defaultCity != null) {
+                    val otherCities = cityList.filter { it != defaultCity }
+                    listOf(defaultCity) + otherCities
+                } else cityList
 
-            val startCity = defaultCity ?: cityList.firstOrNull()
-            startCity?.let { selectCity(it) }
+                _cities.value = orderedCities
+
+                val startCity = defaultCity ?: orderedCities.firstOrNull()
+                startCity?.let { selectCity(it) }
+            }
         }
     }
 
     internal fun refreshCityWeather(city: City) {
         viewModelScope.launch {
+            _weatherMap.value = _weatherMap.value.toMutableMap().apply {
+                put(city, _weatherMap.value[city]?.copy(isLoading = true) ?: WeatherUiState(isLoading = true))
+            }
+
             try {
                 val weather = getWeatherUseCase(city.name)
                 val uiState = convertToUiState(weather)
                 _weatherMap.value = _weatherMap.value.toMutableMap().apply {
-                    put(city, uiState)
+                    put(city, uiState.copy(isLoading = false))
                 }
+
+                val defaultCity = getDefaultCityUseCase().firstOrNull()
+                val cityList = getAllCitiesUseCase()
+                val orderedCities = if (defaultCity != null) {
+                    val otherCities = cityList.filter { it != defaultCity }
+                    listOf(defaultCity) + otherCities
+                } else cityList
+
+                _cities.value = orderedCities
+
             } catch (e: Exception) {
                 _weatherMap.value = _weatherMap.value.toMutableMap().apply {
                     put(
                         city, WeatherUiState(
                             errorMessage = e.message,
-                            isNetworkAvailable = isConnected.value
+                            isNetworkAvailable = isConnected.value,
+                            isLoading = false
                         )
                     )
                 }
@@ -79,42 +101,33 @@ class WeatherViewModel @Inject constructor(
 
         if (_weatherMap.value[city] != null) return
 
-        viewModelScope.launch {
-            try {
-                val weather = getWeatherUseCase(city.name)
-                val uiState = convertToUiState(weather)
-                _weatherMap.value = _weatherMap.value.toMutableMap().apply {
-                    put(city, uiState)
-                }
-            } catch (e: Exception) {
-                _weatherMap.value = _weatherMap.value.toMutableMap().apply {
-                    put(
-                        city, WeatherUiState(
-                            errorMessage = e.message,
-                            isNetworkAvailable = isConnected.value
-                        )
-                    )
-                }
-            }
-        }
+        refreshCityWeather(city)
     }
 
     private fun convertToUiState(weather: WeatherInfo): WeatherUiState {
         val parsedDateTime =
             parseApi(weather.localtime) ?: return WeatherUiState(errorMessage = "Invalid date")
 
+        val allHours = weather.forecast.flatMap { it.hours }
+
+        val filteredHourly = allHours.filter { hour ->
+            parseApi(hour.time)?.isAfter(parsedDateTime) ?: false
+        }
+
+        val limitedHourly = filteredHourly.take(DEFAULT_HOURLY_LIMIT)
+
         val todayForecast = weather.forecast.find { it.date == weather.localtime.substring(0, 10) }
-        val filteredHourly = todayForecast?.hours?.filter { hour ->
-            parseApi(hour.time)?.toLocalTime()
-                ?.let { it >= parsedDateTime.toLocalTime() } ?: false
-        } ?: emptyList()
 
         return weather.toUiState().copy(
             dateText = formatDate(parsedDateTime),
             weekDayText = formatWeekDay(parsedDateTime),
-            hourlyForecast = filteredHourly.map { it.toUi() },
+            hourlyForecast = limitedHourly.map { it.toUi() },
             astroInfo = todayForecast?.astro?.toUi(),
             isNetworkAvailable = isConnected.value
         )
+    }
+
+    companion object {
+        private const val DEFAULT_HOURLY_LIMIT = 24
     }
 }

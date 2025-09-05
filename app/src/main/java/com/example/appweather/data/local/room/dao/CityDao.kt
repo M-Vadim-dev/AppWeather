@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.appweather.data.local.room.dbo.CityEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CityDao {
@@ -30,6 +31,9 @@ interface CityDao {
 
     @Query("SELECT * FROM cities WHERE isDefault = 1 LIMIT 1")
     suspend fun getDefaultCity(): CityEntity?
+
+    @Query("SELECT * FROM cities WHERE isDefault = 1 LIMIT 1")
+    fun getDefaultCityFlow(): Flow<CityEntity?>
 
     @Query("UPDATE cities SET isDefault = CASE WHEN name = :cityName THEN 1 ELSE 0 END")
     suspend fun setDefaultCity(cityName: String)
